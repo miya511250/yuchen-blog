@@ -1,48 +1,87 @@
 ---
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { profile } from '../data/profile';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+	.slice(0, 4);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={profile.language}>
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 	</head>
 	<body>
 		<Header />
-		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This template
-				serves as a lightweight, minimally-styled starting point for anyone looking to build a personal
-				website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to
-				<a href="https://docs.astro.build/">read the docs</a>
-				or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out
-				<a href="https://github.com/Charca/astro-blog-template">astro-blog-template</a>
-				by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
+		<main class="home">
+			<section class="hero" aria-labelledby="hero-title">
+				<div class="hero-copy">
+					<p class="eyebrow">~/yuchen/blog</p>
+					<h1 id="hero-title">{profile.tagline}</h1>
+					<p class="intro">{profile.siteDescription}</p>
+					<div class="topic-row" aria-label="主要写作方向">
+						{profile.topics.map((topic) => <span>{topic}</span>)}
+					</div>
+				</div>
+				<div class="hero-console" aria-label="博客状态">
+					<div class="console-bar">
+						<span></span>
+						<span></span>
+						<span></span>
+					</div>
+					<div class="console-body">
+						<p><span class="prompt">$</span> whoami</p>
+						<p>{profile.author} / frontend / ai / life</p>
+						<p><span class="prompt">$</span> status --notes</p>
+						<div class="status-grid">
+							<span><i></i> writing</span>
+							<span><i></i> shipping</span>
+							<span><i></i> learning</span>
+						</div>
+						<p class="cursor-line">
+							<span class="prompt">$</span> echo "{profile.bio}"<span class="cursor"></span>
+						</p>
+					</div>
+				</div>
+			</section>
+
+			<section class="latest" aria-labelledby="latest-title">
+				<div class="section-heading">
+					<div>
+						<p class="eyebrow">recent commits</p>
+						<h2 id="latest-title">最近文章</h2>
+					</div>
+					<a href="/blog/">查看全部</a>
+				</div>
+				<div class="post-grid">
+					{
+						posts.map((post) => (
+							<article class="post-card">
+								<a href={`/blog/${post.id}/`}>
+									{post.data.heroImage && (
+										<Image width={640} height={360} src={post.data.heroImage} alt="" />
+									)}
+									<div class="post-body">
+										<p class="meta">
+											<span>{post.data.category}</span>
+											<FormattedDate date={post.data.pubDate} />
+										</p>
+										<h3>{post.data.title}</h3>
+										<p>{post.data.description}</p>
+									</div>
+								</a>
+							</article>
+						))
+					}
+				</div>
+			</section>
 		</main>
 		<Footer />
 	</body>

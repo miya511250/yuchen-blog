@@ -8,26 +8,39 @@ import Header from '../../components/Header.astro';
 import { SITE_TITLE } from '../../consts';
 import { profile } from '../../data/profile';
 
-const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
+export async function getStaticPaths() {
+	const posts = await getCollection('blog', ({ data }) => !data.draft);
+	const tags = new Set(posts.flatMap((post) => post.data.tags));
+
+	return [...tags].map((tag) => ({
+		params: { tag },
+		props: {
+			tag,
+			posts: posts
+				.filter((post) => post.data.tags.includes(tag))
+				.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()),
+		},
+	}));
+}
+
+const { tag, posts } = Astro.props;
 ---
 
 <!doctype html>
 <html lang={profile.language}>
 	<head>
-		<BaseHead title={`文章 - ${SITE_TITLE}`} description="Yuchen 的全部博客文章。" />
+		<BaseHead title={`${tag} - ${SITE_TITLE}`} description={`浏览 ${tag} 标签下的文章。`} />
 	</head>
 	<body>
 		<Header />
 		<main class="archive">
 			<header class="page-heading">
-				<p class="eyebrow">Archive</p>
-				<h1>文章</h1>
-				<p>把前端、AI 和生活里的观察慢慢整理成可以回看的记录。</p>
+				<p class="eyebrow">Tag</p>
+				<h1>{tag}</h1>
+				<p>这个标签下共有 {posts.length} 篇文章。</p>
 			</header>
 
-			<section class="post-list" aria-label="文章列表">
+			<section class="post-list" aria-label={`${tag} 标签文章列表`}>
 				{
 					posts.map((post) => (
 						<article class="list-item">
@@ -43,7 +56,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
 									<h2>{post.data.title}</h2>
 									<p>{post.data.description}</p>
 									<div class="tag-row">
-										{post.data.tags.map((tag) => <span>{tag}</span>)}
+										{post.data.tags.map((postTag) => <span>{postTag}</span>)}
 									</div>
 								</div>
 							</a>

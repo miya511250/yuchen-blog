@@ -5,15 +5,16 @@ import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
+import { profile } from '../data/profile';
 
 type Props = CollectionEntry<'blog'>['data'];
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, tags, category } = Astro.props;
 ---
 
-<html lang="en">
+<html lang={profile.language}>
 	<head>
-		<BaseHead title={title} description={description} />
+		<BaseHead title={`${title} - ${profile.siteTitle}`} description={description} image={heroImage} />
 		<style>
 			main {
 				width: calc(100% - 2em);
@@ -49,6 +50,20 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 				margin-bottom: 0.5em;
 				color: rgb(var(--gray));
 			}
+			.post-tags {
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: center;
+				gap: 0.5rem;
+				margin-top: 1rem;
+			}
+			.post-tags span {
+				border: 1px solid rgba(var(--gray), 28%);
+				border-radius: 999px;
+				padding: 0.15rem 0.6rem;
+				font-size: 0.85rem;
+				color: rgb(var(--gray-dark));
+			}
 			.last-updated-on {
 				font-style: italic;
 			}
@@ -65,16 +80,19 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 				<div class="prose">
 					<div class="title">
 						<div class="date">
+							<span>{category}</span>
+							<span> / </span>
 							<FormattedDate date={pubDate} />
 							{
 								updatedDate && (
 									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
+										更新于 <FormattedDate date={updatedDate} />
 									</div>
 								)
 							}
 						</div>
 						<h1>{title}</h1>
+						{tags.length > 0 && <div class="post-tags">{tags.map((tag) => <span>{tag}</span>)}</div>}
 						<hr />
 					</div>
 					<slot />

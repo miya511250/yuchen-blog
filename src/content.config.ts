@@ -14,6 +14,10 @@ const blog = defineCollection({
 			pubDate: z.coerce.date(),
 			updatedDate: z.coerce.date().optional(),
 			heroImage: z.optional(image()),
+			tags: z.array(z.string()).default([]),
+			category: z.enum(['前端', 'AI', '生活']).default('生活'),
+			lang: z.enum(['zh-CN', 'en']).default('zh-CN'),
+			draft: z.boolean().default(false),
 		}),
 });
 
