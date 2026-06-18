@@ -1,5 +1,4 @@
 ---
-import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import BaseHead from '../../components/BaseHead.astro';
 import Footer from '../../components/Footer.astro';
@@ -33,7 +32,14 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
 						<article class="list-item">
 							<a href={`/blog/${post.id}/`}>
 								{post.data.heroImage && (
-									<Image width={320} height={180} src={post.data.heroImage} alt="" />
+									<img
+										width="320"
+										height="180"
+										src={post.data.heroImage.src}
+										alt=""
+										loading="lazy"
+										decoding="async"
+									/>
 								)}
 								<div>
 									<p class="meta">
